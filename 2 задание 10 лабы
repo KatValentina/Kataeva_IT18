@@ -1,0 +1,85 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+int korol(const vector<vector<int>>& t, int n, string& s) {
+    if (t.empty() || t.front().empty()) return -1; // Проверка на пустой ввод
+
+    // Создаем матрицу dp для хранения минимальных значений
+    vector<vector<int>> dp(n, vector<int>(n, 6400*30+1));
+
+    vector<vector<char>> napr(n, vector<char>(n, ' ')); // Матрица для направления
+
+    // Начинаем с верхнего правого угла
+    dp[0][n - 1] = t[0][n - 1];
+
+    // Заполняем матрицу dp
+    for (int r = 0; r < n; ++r) {
+        for (int c = n - 1; c >= 0; --c) {
+            if (r > 0) { // Если есть возможность двигаться вниз
+                if (dp[r][c] > dp[r - 1][c] + t[r][c]) {
+                    dp[r][c] = dp[r - 1][c] + t[r][c];
+                    napr[r][c] = 'D'; // Запоминаем движение вниз
+                }
+            }
+            if (c < n - 1) { // Если есть возможность двигаться влево
+                if (dp[r][c] > dp[r][c + 1] + t[r][c]) {
+                    dp[r][c] = dp[r][c + 1] + t[r][c];
+                    napr[r][c] = 'L'; // Запоминаем движение влево
+                }
+            }
+        }
+    }
+
+    // Восстановление пути
+    int r = n - 1, c = 0; // Начинаем с нижнего левого угла
+    while (r > 0 || c < n - 1) {
+        if (napr[r][c] == 'D') {
+            s = 'D' + s;
+            r--; // Двигаемся вниз
+        }
+        else if (napr[r][c] == 'L') {
+            s = 'L' + s;
+            c++; // Двигаемся влево
+        }
+    }
+
+    // Возвращаем минимальную сумму неприятностей в нижнем левом углу
+    return dp[n - 1][0];
+}
+
+int main() {
+    setlocale(LC_ALL, "ru");
+    ifstream fin("Game.txt");
+
+    if (!fin.is_open()) {
+        cout << "Файл не открылся, повторите попытку!" << endl;
+        return 1; // Завершение программы при ошибке открытия файла
+    }
+
+    int n;
+    fin >> n;
+    if (n <= 1 || n >= 80) {
+        cout << "Некорректные данные, измените содержание файла" << endl;
+        return 1; // Завершение программы при некорректных данных
+    }
+
+    // Вектор для хранения количества неприятностей
+    vector<vector<int>> nepr(n, vector<int>(n));
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            fin >> nepr[i][j];
+        }
+    }
+
+    fin.close();
+
+    string napr;
+    int c = korol(nepr, n, napr);
+    cout << "Минимальная сумма неприятностей: " << c << endl;
+    cout << "Путь: " << napr << endl; // Добавлен endl для переноса строки
+    return 0;
+}

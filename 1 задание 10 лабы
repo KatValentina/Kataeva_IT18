@@ -1,0 +1,81 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+struct Artefact {
+    int ves;//вес артефакта
+    int nalog;//налог на этот артефакт
+};
+
+int main()
+{
+    setlocale(LC_ALL, "ru");
+    ifstream fin;
+    fin.open("zadanie1.txt");
+    if (!fin.is_open())
+        cout << "Файл не открылся, повторите попытку!";
+
+    int n, z;
+    fin >> n >> z;
+    //заполняем вектор значениями из файла 
+    vector <Artefact> art(n);
+    for (int i = 0; i < n; i++)
+        fin >> art[i].ves;
+    for (int i = 0; i < n; i++)
+        fin >> art[i].nalog;
+    fin.close();
+
+    int maxves=0;//вес всех артефактов
+    for (const auto& ar : art) {
+        maxves = maxves + ar.ves;
+    }
+    int maxn=0;//налог всех артефактов
+    for (const auto& ar : art) {
+        maxn = maxn + ar.nalog;
+    }
+
+    // минимальное налоговое бремя для каждого веса
+    vector<int> dp(maxves+ 1,maxn);
+    dp[0] = 0; // Налоговое бремя для веса 0
+    for (int i = 0; i < n; ++i) {
+        for (int w = maxves; w >= art[i].ves; --w) {
+            if (dp[w - art[i].ves] != maxn) {
+                if (dp[w] > dp[w - art[i].ves] + art[i].nalog)
+                    dp[w] = dp[w - art[i].ves] + art[i].nalog;
+            }
+        }
+    }
+    // Поиск минимального налогового бремени при весе больше Z
+    int minnal = maxn;
+    int minv = -1;
+    for (int w = z + 1; w <=maxves; ++w) {
+        if (dp[w] < minnal) {
+            minnal = dp[w];
+            minv = w;
+        }
+    }
+    // Восстановление выбранных артефактов
+    vector<int> vubor;
+    int c = minv;
+    for (int i = n - 1; i >= 0; --i) {
+        if (c >= art[i].ves &&
+            dp[c - art[i].ves] + art[i].nalog == dp[c]) {
+            vubor.push_back(i + 1); // Используем счёт с индексом, начиная с 1
+            c -= art[i].ves;
+        }
+    }
+
+    // Вывод результата
+    cout << "Выбранные артефакты: ";
+    for (const auto& index : vubor) {
+        cout << index << " ";
+    }
+    cout << endl;
+
+    cout << "Суммарный вес: " << minv << " кг" << endl;
+    cout << "Общее налоговое бремя: " << minnal << endl;
+    return 0;
+
+}

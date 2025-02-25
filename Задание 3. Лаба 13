@@ -1,0 +1,39 @@
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "ru");
+    int k, n;
+    cout << "Введите систему счисления: ";
+    cin >> k;
+    cout << "количество разрядов: ";
+    cin >> n;
+    float nz, oz, tz, thz, i, _nz, _oz, _tz, _thz, foz, _foz;
+    if (k < 2 || k>10 || n <= 1 || n>=20 || (n + k) >= 26) {
+        cout << "Некорректные данные, повторите ввод";
+    }
+    else {
+        nz = k - 1;
+        oz = 1;
+        tz = 0;
+        thz = 0;
+        foz = 0;
+        for (i = 2; i <= n; i++) {
+            _nz = nz;
+            _oz = oz;
+            _tz = tz;
+            _thz = thz;
+            _foz = foz;
+            // Обновление количества чисел по классам
+            nz = _nz * (k - 1) + _oz * (k - 1) + _thz * (k - 1) + _tz * (k - 1) + _foz * (k - 1);//нет нулей на конце
+            oz = _nz;  // один ноль на конце
+            tz = _oz;  // два нуля на конце
+            thz = _tz; // три нуля на конце 
+            foz = _thz + _foz*k;//4 нуля
+        }
+        cout << "Количество чисел, содержащих более трёх идущих нулей: " << foz;
+    }
+
+    return 0;
+}

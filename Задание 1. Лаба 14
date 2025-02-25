@@ -1,0 +1,32 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+int main() {
+ setlocale(LC_ALL, "ru");
+ double a;
+ fstream f, f1;
+ f.open("f1", ios::out | ios::binary);
+ f1.open("f2", ios::out | ios::binary);
+ int n;
+ cout << "Введите число чисел в файле f1: ";
+ cin >> n;
+ for (int i = 0; i < n; i++) {
+  cin >> a;
+  f.write((char*)&a, sizeof(a));
+ }
+ f.close();
+ f.open("f1", ios::in | ios::binary);
+ for (int i = 0; i < n; i++) {
+  if (i == 0 || i==(n-1)) {
+   f.seekg(sizeof(a) * i, ios::beg);
+   f.read((char*)&a, sizeof(a)); cout << a << " ";
+   f1.write((char*)&a, sizeof(a));
+  }
+ }
+ f.close();
+ f1.close();
+}

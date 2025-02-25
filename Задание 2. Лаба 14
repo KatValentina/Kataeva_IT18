@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "ru");
+    fstream f;
+
+    // Открытие файла для записи
+    f.open("zadanie2", ios::out | ios::binary);
+    if (!f.is_open()) {
+        cout << "Ошибка открытия файла!"; // проверка на открытие файла
+        return 1;
+    }
+
+    int n;
+    // Заполняем файл значениями вручную для удобства тестирования
+    cout << "Введите число чисел в файле zadanie2: "; // заполняем файл цифрами 
+    cin >> n;
+    while (n <= 0) {
+        cout << "Недопустимое количество элементов в файле. Введите количество чисел в файле заново: ";
+        cin >> n;
+    }
+
+    int a;
+    for (int i = 0; i < n; i++) {
+        cin >> a;
+        f.write((char*)&a, sizeof(a));
+    }
+    f.close();
+
+    f.open("zadanie2", ios::in | ios::binary);
+    // Вектор для хранения элементов файла
+    cout << "Изначальное содержание файла: " << "\n";
+    vector<int> s;
+
+    while (f.read((char*)&a, sizeof(a))) { // заполняем вектор
+        s.push_back(a);
+        cout << a << " "; // выводим элементы для удобства
+    }
+
+    f.close();
+
+    // Проверка условий
+    //будем предполагать, что мы изначально не заполняли файл вручную и не знаем сколько там было значений
+    if (s.size() % 2 != 0) { 
+        cout << "\nНекорректный ввод!";
+        return 1;
+    }
+
+    int l = s.size() / 2; // находим край первой половины 
+    s.erase(s.begin(), s.begin() + l); // удаляем первую половину элементов 
+
+    // Открываем файл для записи
+    f.open("zadanie2", ios::out | ios::binary);
+    for (int k : s) {
+        f.write((char*)&k, sizeof(k));
+    }
+
+    f.close();
+
+    // Открываем файл для чтения и выводим измененное содержание
+    f.open("zadanie2", ios::in | ios::binary);
+    cout << "\nИзменённое содержание файла: " << "\n";
+
+    while (f.read((char*)&a, sizeof(a))) { //выводим оставшиеся элементы
+        cout << a << " ";
+    }
+
+    f.close();
+
+    return 0;
+}
